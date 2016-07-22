@@ -29,9 +29,9 @@ function OAuth(client_id, cb) {
     console.log(query_string);
 
     const query = qs.parse(query_string);
+    console.log(`query: ${JSON.stringify(query)}`);
 
-    //if (query.state === state) {
-    if (state === state) {
+    if (query.state === state) {
       cb(query.code, getProfileData, 'access_token');
     } else {
       console.error('Error authorizing oauth redirection');
@@ -114,9 +114,15 @@ function getProfileData(tokenData){
 class AuctionLiveStreamingLogin extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      refresh_token: '',
+    };
   }
   componentDidMount() {
     console.log('in componentDidMount');
+    console.log(`refresh_token: ${this.state.refresh_token}`);
+    //if (this.state.refresh_token )
     OAuth(config.client_id, getToken);
     //getToken('ACuBkVcgKAUi7wUCPWJClaJgw4x9DrayJZzF9Qwl5YrBdP9CCeE-', getProfileData, 'refresh_token');
   }
