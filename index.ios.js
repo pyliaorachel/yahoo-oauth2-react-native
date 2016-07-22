@@ -26,10 +26,9 @@ function OAuth(client_id, cb) {
     const [, query_string] = event.url.match(/\?(.*)/);
     console.log(query_string);
 
-    // get parsed query
     const query = qs.parse(query_string);
 
-    cb(query.code);
+    cb(query.code, getProfileData);
   }
 
   const oauthurl = 'https://api.login.yahoo.com/oauth2/request_auth?'+
@@ -44,25 +43,10 @@ function OAuth(client_id, cb) {
   Linking.openURL(oauthurl).catch(err => console.error('Error processing linking', err));
 }
 
-function getToken(code){
+function getToken(code, cb){
   console.log(`code: ${code}`);
   const authcode = base64.encode(`${config.client_id}:${config.client_secret}`);
   console.log(authcode);
-
-  const formData = new FormData();
-  formData.append('client_id', config.client_id);
-  formData.append('client_secret', config.client_secret);
-  formData.append('redirect_uri', 'oob');
-  formData.append('code', code);
-  formData.append('grant_type', 'authorization_code');
-  // const params = {
-  //   client_id: config.client_id,
-  //   client_secret: config.client_secret,
-  //   redirect_uri: 'oob',
-  //   code,
-  //   grant_type: 'authorization_code',
-  // };
-  console.log(formData);
 
   const tokenurl = `https://api.login.yahoo.com/oauth2/get_token`;
   fetch(tokenurl, {
@@ -79,29 +63,32 @@ function getToken(code){
       code: code,
       grant_type: 'authorization_code',
     })
-  }).then((res) => {
+  }).then(res => {
     return res.json();
-  }).then(json => {
-    console.log(`res: ${JSON.stringify(json)}`);
-    console.log(`res: ${json}`);
-  });
+  }).then(token => {
+    console.log(`token res: ${JSON.stringify(token)}`);
+    cb(token);
+  }).catch(err => console.error('Error fetching profile data', err));
+}
+
+function getProfileData(tokenData){
+  const dataurl = `https://social.yahooapis.com/v1/user/${tokenData.xoauth_yahoo_guid}/profile?format=json`;
+  fetch(dataurl, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${tokenData.access_token}`
+    }
+  }).then(res => {
+    return res.json();
+  }).then(profile => {
+    console.log(`User profile: ${JSON.stringify(profile)}`);
+  }).catch(err => console.error('Error fetching profile data', err));
 }
 
 class AuctionLiveStreamingLogin extends Component {
   componentDidMount() {
     console.log('in componentDidMount');
     OAuth(config.client_id, getToken);
-    // OAuth(config.client_id, (query) => {
-    //   // console.log(`access_token=${query.access_token}, token_type=${query.token_type}, xoauth_yahoo_guid=${query.xoauth_yahoo_guid}`);
-    //   console.log(`code=${query.code}`);
-    //   // const dataurl = `https://social.yahooapis.com/v1/user/${query.xoauth_yahoo_guid}/profile?format=json`;
-    //   // fetch(dataurl, {
-    //   //   method: 'POST',
-    //   //   headers: {Authorization: `Bearer ${query.access_token}`}
-    //   // }).then((profile) => {
-    //   //   console.log(`User profile: ${profile}`);
-    //   // });
-    // });
   }
   render() {
     return (
