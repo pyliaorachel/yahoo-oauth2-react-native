@@ -3,6 +3,8 @@ Sample tutorial of [Yahoo OAuth2 API](https://developer.yahoo.com/oauth2/guide/f
 
 Focusing on IOS.
 
+Switch to **tutorial** branch to follow the instructions below. **master** branch is not for tutorial use.
+
 Thanks to [this article](https://medium.com/@jtremback/oauth-2-with-react-native-c3c7c64cbb6d#.xkj1mceyo) for great instructions on using Dropbox API. Many of the project are based on this article.
 
 Different APIs have different limitations, so it would be harmful if you follow the guide above to try to create a Yahoo app. Follow this one if you want to save your time.
