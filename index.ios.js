@@ -42,7 +42,7 @@ function OAuth(client_id, cb) {
       console.log(`query: ${JSON.stringify(query)}`);
 
       if (query.state === state) {
-        cb(query.code, 'access_token');
+        cb(query.code, 'access_token', getProfileData);
       } else {
         console.error('Error authorizing oauth redirection');
       }
@@ -96,7 +96,7 @@ function getToken(codeOrToken, tokenType, cb){
   }).catch(err => console.error('Error fetching token', err));
 }
 
-getProfileData(tokenData){
+function getProfileData(tokenData){
   const dataurl = `https://social.yahooapis.com/v1/user/${tokenData.xoauth_yahoo_guid}/profile?format=json`;
   fetch(dataurl, {
     method: 'GET',
