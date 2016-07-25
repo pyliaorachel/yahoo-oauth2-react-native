@@ -1,7 +1,10 @@
 # Yahoo OAuth2 in React Native
+
 Sample tutorial of [Yahoo OAuth2 API](https://developer.yahoo.com/oauth2/guide/flows_authcode/) in React Native. We will create an app and link to OAuth2 of Yahoo for retrieving user profiles.
 
 Focusing on IOS.
+
+Switch to **tutorial** branch to follow the instructions below. **master** branch is not for tutorial use.
 
 Thanks to [this article](https://medium.com/@jtremback/oauth-2-with-react-native-c3c7c64cbb6d#.xkj1mceyo) for great instructions on using Dropbox API. Many of the project are based on this article.
 
