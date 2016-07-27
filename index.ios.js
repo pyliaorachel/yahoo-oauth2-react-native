@@ -5,13 +5,15 @@ import {
   Text,
   View,
   Linking,
-  AsyncStorage
+  AsyncStorage,
+  TouchableHighlight,
+  Image
 } from 'react-native';
 import config from './config.js';
 import qs from 'qs';
 import base64 from 'base-64';
 
-const REFRESH_TOKEN = 'REFRESH_TOKEN';
+const REFRESH_TOKEN = '@AuctionLiveStreamingLogin:REFRESH_TOKEN';
 
 class AuctionLiveStreamingLogin extends Component {
   constructor(props) {
@@ -19,7 +21,17 @@ class AuctionLiveStreamingLogin extends Component {
 
     this.state = {
       refresh_token: '',
+      auth_state: '',
+      profile: {
+        imageUrl: '',
+        nickname: '',
+      },
     };
+
+    this.OAuth = this.OAuth.bind(this);
+    this.getToken = this.getToken.bind(this);
+    this.getProfileData = this.getProfileData.bind(this);
+    this.logout = this.logout.bind(this);
   }
   componentDidMount() {
     console.log(`refresh_token in componentDidMount: ${this.state.refresh_token}`);
@@ -32,7 +44,11 @@ class AuctionLiveStreamingLogin extends Component {
       console.log('No refresh_token stored yet');
       // Get code
         // for secure authorization
-      const state = Math.random() + '';
+      let state = Math.random() + '';
+      this.setState({
+        auth_state: state,
+      });
+
       const oauthurl = 'https://api.login.yahoo.com/oauth2/request_auth?'+
                 qs.stringify({
                   client_id: config.client_id,
@@ -46,7 +62,6 @@ class AuctionLiveStreamingLogin extends Component {
       Linking.openURL(oauthurl).catch(err => console.error('Error processing linking', err));
 
       // Listen to redirection
-      Linking.addEventListener('url', handleUrl.bind(this));
       function handleUrl(event){
         // Get access_token
         console.log(event.url);
@@ -57,12 +72,13 @@ class AuctionLiveStreamingLogin extends Component {
         const query = qs.parse(query_string);
         console.log(`query: ${JSON.stringify(query)}`);
 
-        if (query.state === state) {
+        if (query.state === this.state.auth_state) {
           this.getToken(query.code, 'access_token');
         } else {
           console.error('Error authorizing oauth redirection');
         }
       }
+      Linking.addEventListener('url', handleUrl.bind(this));
     } else {
       console.log('Found refresh_token');
       // Get access_token
@@ -112,14 +128,29 @@ class AuctionLiveStreamingLogin extends Component {
     }).then(token => {
       console.log(`token res: ${JSON.stringify(token)}`);
 
-      // store refresh_token
-      AsyncStorage.setItem(REFRESH_TOKEN, token.refresh_token);
-      this.setState({
-        refresh_token: token.refresh_token,
-      });
+      if (token.error) {
+        AsyncStorage.removeItem(REFRESH_TOKEN, () => {
+          this.setState({
+            refresh_token: '',
+            auth_state: '',
+            profile: {
+              imageUrl: '',
+              nickname: '',
+            },
+          });
+        });
+      }
+      else if (token.refresh_token) {
+        // store refresh_token
+        AsyncStorage.setItem(REFRESH_TOKEN, token.refresh_token);
 
-      // fetch profile
-      this.getProfileData(token);
+        this.setState({
+          refresh_token: token.refresh_token,
+        });
+
+        // fetch profile
+        this.getProfileData(token);
+      }
     }).catch(err => console.error('Error fetching token', err));
   }
 
@@ -132,9 +163,28 @@ class AuctionLiveStreamingLogin extends Component {
       }
     }).then(res => {
       return res.json();
-    }).then(profile => {
-      console.log(`User profile: ${JSON.stringify(profile)}`);
+    }).then(profileData => {
+      console.log(`User profile: ${JSON.stringify(profileData)}`);
+
+      this.setState({
+        profile: {
+          imageUrl: profileData.profile.image.imageUrl,
+          nickname: profileData.profile.nickname,
+        }
+      });
     }).catch(err => console.error('Error fetching profile data', err));
+  }
+  logout(){
+    AsyncStorage.removeItem(REFRESH_TOKEN, () => {
+      this.setState({
+        refresh_token: '',
+        auth_state: '',
+        profile: {
+          imageUrl: '',
+          nickname: '',
+        },
+      });
+    });
   }
   render() {
     return (
@@ -142,6 +192,15 @@ class AuctionLiveStreamingLogin extends Component {
         <Text style={styles.welcome}>
           Welcome to Yahoo Auction Live Streaming Platform!
         </Text>
+        <Text style={{margin: 5}}>
+          {this.state.profile.nickname}
+        </Text>
+        <Image source={{uri: this.state.profile.imageUrl}}
+              style={{width: 100, height: 100}} />
+        <TouchableHighlight style={styles.btn}
+              onPress={(this.state.refresh_token === '') ? this.OAuth : this.logout}>
+          <Text>{(this.state.refresh_token === '') ? 'Log In' : 'Log Out'}</Text>
+        </TouchableHighlight>
       </View>
     );
   }
@@ -163,6 +222,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#333333',
     marginBottom: 5,
+  },
+  btn: {
+    padding: 5,
+    borderRadius: 5,
+    borderStyle: 'solid',
+    borderWidth: 1,
+    borderColor: '#444444',
+    margin: 5,
   },
 });
 
