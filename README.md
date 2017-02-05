@@ -35,7 +35,7 @@ react-native run-ios
     - Click on your project. Go to `Build Settings > Search Paths > Header Search Paths` and add a path to the Linking library.
     - Here I choose to add `$(SRCROOT)/../node_modules/react-native/Libraries` and select `recursive`.
   
-    <img src="https://scontent-tpe1-1.xx.fbcdn.net/t31.0-8/13765972_1223062894405141_2261938845379188073_o.jpg" 
+    <img src="https://raw.githubusercontent.com/pyliaorachel/yahoo-oauth2-react-native/tutorial/img/link_library.jpg" 
 alt="Add Path" width="681" height="447" border="50" />
 
   2. Open `AppDelegate.m` and add the following code after `@implementation AppDelegate`:
@@ -67,7 +67,7 @@ alt="Add Path" width="681" height="447" border="50" />
       + Creating a custom **URL scheme** makes your app directable through typing `yoururlscheme://` in the address bar of a browser.
       + **Identifier** makes different apps with the same URL scheme differentiable.
       
-     <img src="https://scontent-tpe1-1.xx.fbcdn.net/t31.0-8/13767222_1223062354405195_7153781867942174900_o.jpg" 
+     <img src="https://raw.githubusercontent.com/pyliaorachel/yahoo-oauth2-react-native/tutorial/img/url_scheme.jpg" 
 alt="URL Scheme" width="602" height="195" border="50" />
 
 3. Goto [Yahoo Developer Network](https://developer.yahoo.com) and create an app.
@@ -227,5 +227,5 @@ alt="URL Scheme" width="602" height="195" border="50" />
 
 - If you read the article provided at the beginning, you may find the technique different in redirection. This is because Dropbox provides flexibility in `redirect_uri` and a custom URL scheme can be implemented to redirect back to the app, which saves efforts implementing the server side part. Yahoo doesn't provide this flexibility by now, and it only accepts uris starting with `http://` or `https://`, as we guess after testing. So the redirection to `yoururlscheme://` should be in the server side.
 
-<img src="https://scontent-tpe1-1.xx.fbcdn.net/t31.0-8/13719608_1223062254405205_5278625681264186608_o.jpg" 
+<img src="https://raw.githubusercontent.com/pyliaorachel/yahoo-oauth2-react-native/tutorial/img/problem.jpg" 
 alt="Error" width="375" height="589" border="50" />
